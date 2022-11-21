@@ -637,6 +637,36 @@ struct MinidumpContextMIPS64 {
   uint64_t fir;
 };
 
+//! \brief LOONGARCH64-specifc flags for MinidumpContextLOONGARCH64::context_flags.
+//! Based on minidump_cpu_loongarch64.h from breakpad
+enum MinidumpContextLOONGARCH64Flags : uint32_t {
+  //! \brief Identifies the context structure as LOONGARCH64.
+  kMinidumpContextLOONGARCH64 = 0x00800000,
+
+  //! \brief Indicates the validity of integer registers.
+  //!
+  //! Registers `0`-`31`, `epc` are valid.
+  kMinidumpContextLOONGARCH64Integer = kMinidumpContextLOONGARCH64 | 0x00000002,
+
+  //! \brief Indicates the validity of floating point registers.
+  //!
+  //! Floating point registers `0`-`31`, `fpcsr` and `fir` are valid
+  kMinidumpContextLOONGARCH64FloatingPoint = kMinidumpContextLOONGARCH64 | 0x00000004,
+
+  //! \brief Indicates the validity of all registers.
+  kMinidumpContextLOONGARCH64All = kMinidumpContextLOONGARCH64Integer |
+                              kMinidumpContextLOONGARCH64FloatingPoint,
+};
+
+//! \brief A LOONGARCH64 CPU context (register state) carried in a minidump file.
+struct MinidumpContextLOONGARCH64 {
+  uint32_t context_flags;
+  uint64_t sc_pc;
+  uint64_t sc_regs[32];
+  uint64_t fregs[32];
+  uint64_t fcc;
+  uint32_t fcsr;
+};
 }  // namespace crashpad
 
 #endif  // CRASHPAD_MINIDUMP_MINIDUMP_CONTEXT_H_

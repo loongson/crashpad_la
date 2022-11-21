@@ -295,5 +295,25 @@ void InitializeCPUContextMIPS64(CPUContext* context, uint32_t seed) {
   mips64->dsp_control = value++;
 }
 
+void InitializeCPUContextLOONGARCH64(CPUContext* context, uint32_t seed) {
+  context->architecture = kCPUArchitectureLOONGARCH64;
+  CPUContextLOONGARCH64* loongarch64 = context->loongarch64;
+
+  if (seed == 0) {
+    memset(loongarch64, 0, sizeof(*loongarch64));
+    return;
+  }
+
+  uint64_t value = seed;
+
+  for (size_t index = 0; index < std::size(loongarch64->fregs); ++index) {
+    loongarch64->fregs[index] = value++;
+  }
+
+  loongarch64->sc_pc = value++;
+  loongarch64->fcsr = value++;
+  loongarch64->fcc = value++;
+}
+
 }  // namespace test
 }  // namespace crashpad

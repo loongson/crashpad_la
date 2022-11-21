@@ -296,6 +296,48 @@ void ExpectContext(const CPUContext& actual, const NativeCPUContext& expected) {
             0);
 #undef CPU_ARCH_NAME
 }
+#elif defined(ARCH_CPU_LOONGARCH64)
+using NativeCPUContext = ucontext_t;
+struct TestCoprocessorContext {
+  sctx_info sctx;
+  fpu_context fpu;
+};
+
+void InitializeContext(NativeCPUContext* context) {
+  context->uc_mcontext.__pc = 1;
+  for (size_t reg = 0; reg < std::size(context->uc_mcontext.__gregs); ++reg) {
+    context->uc_mcontext.__gregs[reg] = reg;
+  }
+
+auto test_context = reinterpret_cast<TestCoprocessorContext*>(
+      context->uc_mcontext.__extcontext);
+  test_context->sctx.magic = 0;
+  test_context->sctx.size = 0;;
+
+  for (size_t reg = 0; reg < std::size(test_context->fpu.regs); ++reg) {
+    test_context->fpu.regs[reg] = reg;
+
+  test_context->fpu.fcc = 1;
+  test_context->fpu.fcsr = 2;
+  }
+}
+
+void ExpectContext(const CPUContext& actual, const NativeCPUContext& expected) {
+  EXPECT_EQ(actual.architecture, kCPUArchitectureLOONGARCH64);
+
+  auto test_context = reinterpret_cast< const TestCoprocessorContext*>(
+       expected.uc_mcontext.__extcontext);
+  for (size_t reg = 0; reg < std::size(expected.uc_mcontext.__gregs); ++reg) {
+    EXPECT_EQ(actual.loongarch64->sc_regs[reg], expected.uc_mcontext.__gregs[reg]);
+  }
+
+  EXPECT_EQ(memcmp(&actual.loongarch64->fregs,
+                   &test_context->fpu.regs,
+                   sizeof(actual.loongarch64->fregs)),
+            0);
+  EXPECT_EQ(actual.loongarch64->fcc, test_context->fpu.fcc);
+  EXPECT_EQ(actual.loongarch64->fcsr, test_context->fpu.fcsr);
+}
 
 #else
 #error Port.

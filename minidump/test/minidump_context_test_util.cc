@@ -272,6 +272,31 @@ void InitializeMinidumpContextMIPS64(MinidumpContextMIPS64* context,
   context->dsp_control = value++;
 }
 
+void InitializeMinidumpContextLOONGARCH64(MinidumpContextLOONGARCH64* context,
+                                     uint32_t seed) {
+  if (seed == 0) {
+    memset(context, 0, sizeof(*context));
+    context->context_flags = kMinidumpContextLOONGARCH64;
+    return;
+  }
+
+  context->context_flags = kMinidumpContextLOONGARCH64All;
+
+  uint64_t value = seed;
+
+  for (size_t index = 0; index < std::size(context->sc_regs); ++index) {
+    context->sc_regs[index] = value++;
+  }
+
+  context->sc_pc = value++;
+
+  for (size_t index = 0; index < std::size(context->fregs); ++index) {
+    context->fregs[index] = static_cast<double>(value++);
+  }
+  context->fcsr = value++;
+  context->fcc = value++;
+}
+
 namespace {
 
 // Using Google Test assertions, compares |expected| to |observed|. This is
@@ -599,6 +624,27 @@ void ExpectMinidumpContextMIPS64(uint32_t expect_seed,
     EXPECT_EQ(observed->lo[index], expected.lo[index]);
   }
   EXPECT_EQ(observed->dsp_control, expected.dsp_control);
+}
+
+void ExpectMinidumpContextLOONGARCH64(uint32_t expect_seed,
+                                 const MinidumpContextLOONGARCH64* observed,
+                                 bool snapshot) {
+  MinidumpContextLOONGARCH64 expected;
+  InitializeMinidumpContextLOONGARCH64(&expected, expect_seed);
+
+  EXPECT_EQ(observed->context_flags, expected.context_flags);
+
+  for (size_t index = 0; index < std::size(expected.sc_regs); ++index) {
+    EXPECT_EQ(observed->sc_regs[index], expected.sc_regs[index]);
+  }
+
+  EXPECT_EQ(observed->sc_pc, expected.sc_pc);
+
+  for (size_t index = 0; index < std::size(expected.fregs); ++index) {
+    EXPECT_EQ(observed->fregs[index], expected.fregs[index]);
+  }
+  EXPECT_EQ(observed->fcsr, expected.fcsr);
+  EXPECT_EQ(observed->fcc, expected.fcc);
 }
 
 }  // namespace test

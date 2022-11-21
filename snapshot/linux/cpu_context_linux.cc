@@ -265,7 +265,31 @@ void InitializeCPUContextARM64_OnlyFPSIMD(
   context->fpsr = float_context.fpsr;
   context->fpcr = float_context.fpcr;
 }
+#elif defined(ARCH_CPU_LOONGARCH64)
+void InitializeCPUContextLOONGARCH64(const ThreadContext::t64_t& thread_context,
+                               const FloatContext::f64_t& float_context,
+                               CPUContextLOONGARCH64* context) {
+  InitializeCPUContextLOONGARCH64_NoFloatingPoint(thread_context, context);
 
+  static_assert(sizeof(context->fregs) == sizeof(float_context.fregs),
+                "fpu context size mismatch");
+  memcpy(context->fregs, float_context.fregs, sizeof(context->fregs));
+  context->fcc = float_context.fcc;
+  context->fcsr = float_context.fcsr;
+}
+
+void InitializeCPUContextLOONGARCH64_NoFloatingPoint(
+    const ThreadContext::t64_t& thread_context,
+    CPUContextLOONGARCH64* context) {
+  static_assert(sizeof(context->sc_regs) == sizeof(thread_context.regs),
+                "gpr context size mismtach");
+  memcpy(context->sc_regs, thread_context.regs, sizeof(context->sc_regs));
+  context->sc_pc = thread_context.csr_era;
+
+  memset(&context->fregs, 0, sizeof(context->fregs));
+  context->fcc = 0;
+  context->fcsr = 0;
+}
 #endif  // ARCH_CPU_X86_FAMILY
 
 }  // namespace internal

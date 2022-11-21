@@ -593,6 +593,7 @@ bool ElfImageReader::ReadDynamicStringTableAtOffset(VMSize offset,
     return false;
   }
 
+#if !defined(__loongarch64)
   // GNU ld.so doesn't adjust the vdso's dynamic array entries by the load bias.
   // If the address is too small to point into the loaded module range and is
   // small enough to be an offset from the base of the module, adjust it now.
@@ -600,6 +601,11 @@ bool ElfImageReader::ReadDynamicStringTableAtOffset(VMSize offset,
       string_table_address < memory_.Size()) {
     string_table_address += GetLoadBias();
   }
+#else
+  // LoongArch ABI specifies that the dynamic section has to be read-only.
+  // See glibc: sysdeps/loongarch/ldsodefs.h
+  string_table_address += GetLoadBias();
+#endif
 
   if (!memory_.ReadCStringSizeLimited(
           string_table_address + offset, string_table_size - offset, string)) {
@@ -754,6 +760,10 @@ bool ElfImageReader::GetNumberOfSymbolEntriesFromDtHash(
     return false;
   }
 
+#if defined(__loongarch64)
+  dt_hash_address += GetLoadBias();
+#endif
+
   struct {
     uint32_t nbucket;
     uint32_t nchain;
@@ -778,6 +788,10 @@ bool ElfImageReader::GetNumberOfSymbolEntriesFromDtGnuHash(
   if (!GetAddressFromDynamicArray(DT_GNU_HASH, false, &dt_gnu_hash_address)) {
     return false;
   }
+
+#if defined(__loongarch64)
+  dt_gnu_hash_address += GetLoadBias();
+#endif
 
   // See https://flapenguin.me/2017/05/10/elf-lookup-dt-gnu-hash/ and
   // https://sourceware.org/ml/binutils/2006-10/msg00377.html.

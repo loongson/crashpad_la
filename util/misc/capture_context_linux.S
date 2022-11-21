@@ -30,7 +30,7 @@
   .globl CAPTURECONTEXT_SYMBOL2
 #if defined(__i386__) || defined(__x86_64__)
   .balign 16, 0x90
-#elif defined(__arm__) || defined(__aarch64__)
+#elif defined(__arm__) || defined(__aarch64__) || defined(__loongarch64)
   .balign 4, 0x0
   .type CAPTURECONTEXT_SYMBOL, %function
   .type CAPTURECONTEXT_SYMBOL2, %function
@@ -427,4 +427,83 @@ CAPTURECONTEXT_SYMBOL2:
   jr $ra
 
   .set at
+#elif defined(__loongarch64)
+
+#define MCONTEXT_GREG_SIZE 8
+#define MCONTEXT_FPREG_SIZE 8
+#define MCONTEXT_PC_OFFSET 64
+#define MCONTEXT_GREGS_OFFSET 72
+#define MCONTEXT_FPREGS_OFFSET 352
+
+#define STORE_GPR(X) st.d $r##X, $a0, MCONTEXT_GREGS_OFFSET + X * MCONTEXT_GREG_SIZE
+#define STORE_FPR(X) fst.d $f##X, $a0, MCONTEXT_FPREGS_OFFSET + X * MCONTEXT_FPREG_SIZE
+#define STORE_PC st.d $ra, $a0, MCONTEXT_PC_OFFSET
+
+  STORE_PC
+  STORE_GPR(0)
+  STORE_GPR(1)
+  STORE_GPR(2)
+  STORE_GPR(3)
+  STORE_GPR(4)
+  STORE_GPR(5)
+  STORE_GPR(6)
+  STORE_GPR(7)
+  STORE_GPR(8)
+  STORE_GPR(9)
+  STORE_GPR(10)
+  STORE_GPR(11)
+  STORE_GPR(12)
+  STORE_GPR(13)
+  STORE_GPR(14)
+  STORE_GPR(15)
+  STORE_GPR(16)
+  STORE_GPR(17)
+  STORE_GPR(18)
+  STORE_GPR(19)
+  STORE_GPR(20)
+  STORE_GPR(21)
+  STORE_GPR(22)
+  STORE_GPR(23)
+  STORE_GPR(24)
+  STORE_GPR(25)
+  STORE_GPR(26)
+  STORE_GPR(27)
+  STORE_GPR(28)
+  STORE_GPR(29)
+  STORE_GPR(30)
+  STORE_GPR(31)
+  STORE_FPR(0)
+  STORE_FPR(1)
+  STORE_FPR(2)
+  STORE_FPR(3)
+  STORE_FPR(4)
+  STORE_FPR(5)
+  STORE_FPR(6)
+  STORE_FPR(7)
+  STORE_FPR(8)
+  STORE_FPR(9)
+  STORE_FPR(10)
+  STORE_FPR(11)
+  STORE_FPR(12)
+  STORE_FPR(13)
+  STORE_FPR(14)
+  STORE_FPR(15)
+  STORE_FPR(16)
+  STORE_FPR(17)
+  STORE_FPR(18)
+  STORE_FPR(19)
+  STORE_FPR(20)
+  STORE_FPR(21)
+  STORE_FPR(22)
+  STORE_FPR(23)
+  STORE_FPR(24)
+  STORE_FPR(25)
+  STORE_FPR(26)
+  STORE_FPR(27)
+  STORE_FPR(28)
+  STORE_FPR(29)
+  STORE_FPR(30)
+  STORE_FPR(31)
+
+  jirl $zero, $ra, 0
 #endif  // __i386__

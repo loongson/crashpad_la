@@ -325,6 +325,78 @@ bool ExceptionSnapshotLinux::ReadContext<ContextTraits64>(
       reader, context_address, context_.mips64);
 }
 
+#elif defined(ARCH_CPU_LOONGARCH64)
+
+template <typename Traits>
+static bool ReadContext(ProcessReaderLinux* reader,
+                        LinuxVMAddress context_address,
+                        typename Traits::CPUContext* dest_context) {
+  const ProcessMemory* memory = reader->Memory();
+
+  LinuxVMAddress gregs_address = context_address +
+                                 offsetof(UContext<Traits>, mcontext) +
+                                 offsetof(typename Traits::MContext, gregs);
+
+  typename Traits::SignalThreadContext thread_context;
+  if (!memory->Read(gregs_address, sizeof(thread_context), &thread_context)) {
+    LOG(ERROR) << "Couldn't read gregs";
+    return false;
+  }
+
+  LinuxVMAddress reserved_address =
+      context_address + offsetof(typename Traits::MContext, sc_extcontext);
+  if ((reserved_address & 15) != 0) {
+    LOG(ERROR) << "invalid alignment 0x" << std::hex << reserved_address;
+    return false;
+  }
+
+  constexpr VMSize kMaxContextSpace = 4096;
+
+  ProcessMemoryRange range;
+  if (!range.Initialize(memory, true, reserved_address, kMaxContextSpace)) {
+    return false;
+  }
+
+  do {
+    SCTXInfo sctx;
+    if (!range.Read(reserved_address, sizeof(sctx), &sctx)) {
+      LOG(ERROR) << "missing context sctx";
+      return false;
+    }
+
+    switch (sctx.magic) {
+      case FPU_CTX_MAGIC:
+        FPUContext fpu;
+        if (!range.Read(reserved_address, sizeof(fpu), &fpu)) {
+          LOG(ERROR) << "Couldn't read fpu " << sctx.size;
+          return false;
+        }
+        return true;
+      case 0:
+        LOG(WARNING) << "fpu not found";
+        return true;
+
+      default:
+        LOG(ERROR) << "invalid magic number 0x" << std::hex << sctx.magic;
+        return false;
+    }
+  } while (true);
+
+  return true;
+
+}
+
+template <>
+bool ExceptionSnapshotLinux::ReadContext<ContextTraits64>(
+    ProcessReaderLinux* reader,
+    LinuxVMAddress context_address) {
+  context_.architecture = kCPUArchitectureLOONGARCH64;
+  context_.loongarch64 = &context_union_.loongarch64;
+
+  return internal::ReadContext<ContextTraits64>(
+      reader, context_address, context_.loongarch64);
+}
+
 #endif  // ARCH_CPU_X86_FAMILY
 
 bool ExceptionSnapshotLinux::Initialize(
@@ -354,12 +426,15 @@ bool ExceptionSnapshotLinux::Initialize(
         !ReadSiginfo<Traits64>(process_reader, siginfo_address)) {
       return false;
     }
-  } else {
+  }
+#if !defined(ARCH_CPU_LOONGARCH64)
+  else {
     if (!ReadContext<ContextTraits32>(process_reader, context_address) ||
         !ReadSiginfo<Traits32>(process_reader, siginfo_address)) {
       return false;
     }
   }
+#endif
 
   CaptureMemoryDelegateLinux capture_memory_delegate(
       process_reader,

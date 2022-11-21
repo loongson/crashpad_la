@@ -174,6 +174,30 @@ void InitializeCPUContextMIPS(
 
 #endif  // ARCH_CPU_MIPS_FAMILY || DOXYGEN
 
+#if defined(ARCH_CPU_LOONGARCH64) || DOXYGEN
+//! \brief Initializes a CPUContextARM64 structure from native context
+//!     structures on Linux.
+//!
+//! \param[in] thread_context The native thread context.
+//! \param[in] float_context The native float context.
+//! \param[out] context The CPUContextARM64 structure to initialize.
+void InitializeCPUContextLOONGARCH64(const ThreadContext::t64_t& thread_context,
+                               const FloatContext::f64_t& float_context,
+                               CPUContextLOONGARCH64* context);
+
+//! \brief Initializes GPR state in a CPUContextARM64 from a native context
+//!     structure on Linux.
+//!
+//! Floating point state is initialized to zero.
+//!
+//! \param[in] thread_context The native thread context.
+//! \param[out] context The CPUContextARM64 structure to initialize.
+void InitializeCPUContextLOONGARCH64_NoFloatingPoint(
+    const ThreadContext::t64_t& thread_context,
+    CPUContextLOONGARCH64* context);
+
+#endif  // ARCH_CPU_LOONGARCH64 || DOXYGEN
+
 }  // namespace internal
 }  // namespace crashpad
 

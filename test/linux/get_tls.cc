@@ -49,6 +49,11 @@ LinuxVMAddress GetTLS() {
       : "=r"(tls)
       :
       : "$3");
+#elif defined(ARCH_CPU_LOONGARCH64)
+  asm("move    %0,$tp\n\t"
+      : "=r"(tls)
+      :
+      : "$3");
 #else
 #error Port.
 #endif  // ARCH_CPU_ARMEL
