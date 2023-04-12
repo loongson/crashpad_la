@@ -80,6 +80,8 @@ union ThreadContext {
     uint32_t cp0_status;
     uint32_t cp0_cause;
     uint32_t padding1_;
+#elif defined(ARCH_CPU_LOONGARCH64)
+    // Nothing.
 #else
 #error Port.
 #endif  // ARCH_CPU_X86_FAMILY
@@ -133,6 +135,11 @@ union ThreadContext {
     uint64_t cp0_badvaddr;
     uint64_t cp0_status;
     uint64_t cp0_cause;
+#elif defined(ARCH_CPU_LOONGARCH64)
+    // Reflects user_regs_struct in sys/user.h.
+    uint64_t regs[32];
+    uint64_t csr_epc;
+    uint64_t _pad[12];
 #else
 #error Port.
 #endif  // ARCH_CPU_X86_FAMILY
@@ -142,13 +149,13 @@ union ThreadContext {
   using NativeThreadContext = user_regs_struct;
 #elif defined(ARCH_CPU_ARMEL)
   using NativeThreadContext = user_regs;
-#elif defined(ARCH_CPU_MIPS_FAMILY)
+#elif defined(ARCH_CPU_MIPS_FAMILY) || defined (ARCH_CPU_LOONGARCH64)
 // No appropriate NativeThreadsContext type available for MIPS
 #else
 #error Port.
 #endif  // ARCH_CPU_X86_FAMILY || ARCH_CPU_ARM64
 
-#if !defined(ARCH_CPU_MIPS_FAMILY)
+#if !defined(ARCH_CPU_MIPS_FAMILY) && !defined(ARCH_CPU_LOONGARCH64)
 #if defined(ARCH_CPU_32_BITS)
   static_assert(sizeof(t32_t) == sizeof(NativeThreadContext), "Size mismatch");
 #else  // ARCH_CPU_64_BITS
@@ -219,6 +226,8 @@ union FloatContext {
     } fpregs[32];
     uint32_t fpcsr;
     uint32_t fpu_id;
+#elif defined(ARCH_CPU_LOONGARCH64)
+    // Nothing.
 #else
 #error Port.
 #endif  // ARCH_CPU_X86_FAMILY
@@ -253,6 +262,11 @@ union FloatContext {
     double fpregs[32];
     uint32_t fpcsr;
     uint32_t fpu_id;
+#elif defined(ARCH_CPU_LOONGARCH64)
+    double fpregs[32];
+    uint32_t fcsr;
+    uint32_t _pad;
+    uint64_t fcc;
 #else
 #error Port.
 #endif  // ARCH_CPU_X86_FAMILY
@@ -280,7 +294,7 @@ union FloatContext {
 #endif
 #elif defined(ARCH_CPU_ARM64)
   static_assert(sizeof(f64) == sizeof(user_fpsimd_struct), "Size mismatch");
-#elif defined(ARCH_CPU_MIPS_FAMILY)
+#elif defined(ARCH_CPU_MIPS_FAMILY) || defined (ARCH_CPU_LOONGARCH64)
 // No appropriate floating point context native type for available MIPS.
 #else
 #error Port.

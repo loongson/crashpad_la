@@ -296,6 +296,28 @@ void ExpectContext(const CPUContext& actual, const NativeCPUContext& expected) {
             0);
 #undef CPU_ARCH_NAME
 }
+#elif defined(ARCH_CPU_LOONGARCH64)
+using NativeCPUContext = ucontext_t;
+
+void InitializeContext(NativeCPUContext* context) {
+  for (size_t reg = 0; reg < base::size(context->uc_mcontext.__gregs); ++reg) {
+    context->uc_mcontext.__gregs[reg] = reg;
+  }
+  memset(&context->uc_mcontext.__fpregs, 0, sizeof(context->uc_mcontext.__fpregs));
+}
+
+void ExpectContext(const CPUContext& actual, const NativeCPUContext& expected) {
+  EXPECT_EQ(actual.architecture, kCPUArchitectureLOONGARCH64);
+
+  for (size_t reg = 0; reg < base::size(expected.uc_mcontext.__gregs); ++reg) {
+    EXPECT_EQ(actual.loongarch64->regs[reg], expected.uc_mcontext.__gregs[reg]);
+  }
+
+  EXPECT_EQ(memcmp(&actual.loongarch64->fpregs,
+                   &expected.uc_mcontext.__fpregs,
+                   sizeof(actual.loongarch64->fpregs)),
+            0);
+}
 
 #else
 #error Port.
