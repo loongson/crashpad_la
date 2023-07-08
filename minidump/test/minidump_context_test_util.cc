@@ -284,13 +284,13 @@ void InitializeMinidumpContextLOONGARCH64(MinidumpContextLOONGARCH64* context,
 
   uint64_t value = seed;
 
-  for (size_t index = 0; index < base::size(context->regs); ++index) {
+  for (size_t index = 0; index < std::size(context->regs); ++index) {
     context->regs[index] = value++;
   }
 
   context->csr_epc = value++;
 
-  for (size_t index = 0; index < base::size(context->fpregs.dregs); ++index) {
+  for (size_t index = 0; index < std::size(context->fpregs.dregs); ++index) {
     context->fpregs.dregs[index] = static_cast<double>(value++);
   }
   context->fcsr = value++;
@@ -634,13 +634,13 @@ void ExpectMinidumpContextLOONGARCH64(uint32_t expect_seed,
 
   EXPECT_EQ(observed->context_flags, expected.context_flags);
 
-  for (size_t index = 0; index < base::size(expected.regs); ++index) {
+  for (size_t index = 0; index < std::size(expected.regs); ++index) {
     EXPECT_EQ(observed->regs[index], expected.regs[index]);
   }
 
   EXPECT_EQ(observed->csr_epc, expected.csr_epc);
 
-  for (size_t index = 0; index < base::size(expected.fpregs.dregs); ++index) {
+  for (size_t index = 0; index < std::size(expected.fpregs.dregs); ++index) {
     EXPECT_EQ(observed->fpregs.dregs[index], expected.fpregs.dregs[index]);
   }
   EXPECT_EQ(observed->fcsr, expected.fcsr);

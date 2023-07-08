@@ -281,7 +281,7 @@ bool MinidumpContextConverter::Initialize(
       return false;
     }
 
-    for (size_t i = 0; i < base::size(src->regs); i++) {
+    for (size_t i = 0; i < std::size(src->regs); i++) {
       context_.loongarch64->regs[i] = src->regs[i];
     }
 

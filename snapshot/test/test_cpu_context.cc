@@ -306,13 +306,13 @@ void InitializeCPUContextLOONGARCH64(CPUContext* context, uint32_t seed) {
 
   uint64_t value = seed;
 
-  for (size_t index = 0; index < base::size(loongarch64->regs); ++index) {
+  for (size_t index = 0; index < std::size(loongarch64->regs); ++index) {
     loongarch64->regs[index] = value++;
   }
 
   loongarch64->csr_epc = value++;
 
-  for (size_t index = 0; index < base::size(loongarch64->fpregs.dregs); ++index) {
+  for (size_t index = 0; index < std::size(loongarch64->fpregs.dregs); ++index) {
     loongarch64->fpregs.dregs[index] = static_cast<double>(value++);
   }
 
