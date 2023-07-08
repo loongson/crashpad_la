@@ -15,6 +15,7 @@
 #include "snapshot/linux/exception_snapshot_linux.h"
 
 #include <signal.h>
+#include <string.h>
 
 #include "base/logging.h"
 #include "snapshot/linux/capture_memory_delegate_linux.h"
@@ -333,13 +334,26 @@ static bool ReadContext(ProcessReaderLinux* reader,
                         typename Traits::CPUContext* dest_context) {
   const ProcessMemory* memory = reader->Memory();
 
+  /* WORKAROUND: signal_context isn't compatible with Mcontext64 here.
+   * singal_context is defined at sys/ucontext.h;
+   * Mcontext64 is defined at snapshot/linux/signal_context.h.
+   */
+  typename Traits::SignalThreadContext thread_context;
+
   LinuxVMAddress gregs_address = context_address +
                                  offsetof(UContext<Traits>, mcontext) +
-                                 offsetof(typename Traits::MContext, gregs);
-
-  typename Traits::SignalThreadContext thread_context;
-  if (!memory->Read(gregs_address, sizeof(thread_context), &thread_context)) {
+				 sizeof(thread_context.csr_epc);
+  if (!memory->Read(gregs_address, sizeof(thread_context.regs),
+		    &thread_context.regs)) {
     LOG(ERROR) << "Couldn't read gregs";
+    return false;
+  }
+
+  LinuxVMAddress pc_address = context_address +
+                              offsetof(UContext<Traits>, mcontext);
+  if (!memory->Read(pc_address, sizeof(thread_context.csr_epc),
+		    &thread_context.csr_epc)) {
+    LOG(ERROR) << "Couldn't read csr_epc";
     return false;
   }
 
