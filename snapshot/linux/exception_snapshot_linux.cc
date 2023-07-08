@@ -353,7 +353,7 @@ static bool ReadContext(ProcessReaderLinux* reader,
     return false;
   }
 
-  InitializeCPUContextLOONGARCH64<Traits>(thread_context, fp_context, dest_context);
+  InitializeCPUContextLOONGARCH64(thread_context, fp_context, dest_context);
 
   return true;
 }

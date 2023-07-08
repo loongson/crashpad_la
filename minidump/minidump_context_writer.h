@@ -405,8 +405,6 @@ class MinidumpContextLOONGARCH64Writer final : public MinidumpContextWriter {
 
  private:
   MinidumpContextLOONGARCH64 context_;
-
-  DISALLOW_COPY_AND_ASSIGN(MinidumpContextLOONGARCH64Writer);
 };
 
 }  // namespace crashpad

@@ -268,19 +268,20 @@ TYPED_TEST(MinidumpContextWriter, MIPS64_FromSnapshot) {
                    TypeParam>(context, ExpectMinidumpContextMIPS64, kSeed);
 }
 
-TEST(MinidumpContextWriter, LOONGARCH64_Zeros) {
-  EmptyContextTest<MinidumpContextLOONGARCH64Writer, MinidumpContextLOONGARCH64>(
-      ExpectMinidumpContextLOONGARCH64);
+TYPED_TEST(MinidumpContextWriter, LOONGARCH64_Zeros) {
+  EmptyContextTest<MinidumpContextLOONGARCH64Writer,
+		   MinidumpContextLOONGARCH64,
+		   TypeParam>(ExpectMinidumpContextLOONGARCH64);
 }
 
-TEST(MinidumpContextWriter, LOONGARCH64_FromSnapshot) {
+TYPED_TEST(MinidumpContextWriter, LOONGARCH64_FromSnapshot) {
   constexpr uint32_t kSeed = 64;
   CPUContextLOONGARCH64 context_loongarch64;
   CPUContext context;
   context.loongarch64 = &context_loongarch64;
   InitializeCPUContextLOONGARCH64(&context, kSeed);
-  FromSnapshotTest<MinidumpContextLOONGARCH64Writer, MinidumpContextLOONGARCH64>(
-      context, ExpectMinidumpContextLOONGARCH64, kSeed);
+  FromSnapshotTest<MinidumpContextLOONGARCH64Writer, MinidumpContextLOONGARCH64,
+		   TypeParam>(context, ExpectMinidumpContextLOONGARCH64, kSeed);
 }
 
 }  // namespace

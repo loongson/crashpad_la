@@ -300,7 +300,7 @@ void ExpectContext(const CPUContext& actual, const NativeCPUContext& expected) {
 using NativeCPUContext = ucontext_t;
 
 void InitializeContext(NativeCPUContext* context) {
-  for (size_t reg = 0; reg < base::size(context->uc_mcontext.__gregs); ++reg) {
+  for (size_t reg = 0; reg < std::size(context->uc_mcontext.__gregs); ++reg) {
     context->uc_mcontext.__gregs[reg] = reg;
   }
   memset(&context->uc_mcontext.__fpregs, 0, sizeof(context->uc_mcontext.__fpregs));
@@ -309,7 +309,7 @@ void InitializeContext(NativeCPUContext* context) {
 void ExpectContext(const CPUContext& actual, const NativeCPUContext& expected) {
   EXPECT_EQ(actual.architecture, kCPUArchitectureLOONGARCH64);
 
-  for (size_t reg = 0; reg < base::size(expected.uc_mcontext.__gregs); ++reg) {
+  for (size_t reg = 0; reg < std::size(expected.uc_mcontext.__gregs); ++reg) {
     EXPECT_EQ(actual.loongarch64->regs[reg], expected.uc_mcontext.__gregs[reg]);
   }
 
