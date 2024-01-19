@@ -214,7 +214,7 @@ enum MinidumpCPUArchitecture : uint16_t {
   //!
   //! These systems indentify their CPUs generically as "loongarch64", or
   //! with more specific names such as "loongarch".
-  kMinidumpCPUArchitectureLOONGARCH64 = 0x8005,
+  kMinidumpCPUArchitectureLOONGARCH64 = 0x8007,
 
   //! \brief Unknown CPU architecture.
   kMinidumpCPUArchitectureUnknown = PROCESSOR_ARCHITECTURE_UNKNOWN,
