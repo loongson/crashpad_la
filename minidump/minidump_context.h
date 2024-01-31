@@ -641,7 +641,7 @@ struct MinidumpContextMIPS64 {
 //! Based on minidump_cpu_loongarch64.h from breakpad
 enum MinidumpContextLOONGARCH64Flags : uint32_t {
   //! \brief Identifies the context structure as LOONGARCH64.
-  kMinidumpContextLOONGARCH64 = 0x00800000,
+  kMinidumpContextLOONGARCH64 = 0x00008000,
 
   //! \brief Indicates the validity of integer registers.
   //!
