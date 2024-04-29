@@ -420,7 +420,48 @@ static_assert(offsetof(UContext<ContextTraits64>, mcontext.gregs) ==
 static_assert(offsetof(UContext<ContextTraits64>, mcontext.fpregs) ==
                   offsetof(ucontext_t, uc_mcontext.fpregs),
               "context offset mismatch");
-#endif
+#endif // ARCH_CPU_MIPSEL
+
+#elif defined(ARCH_CPU_LOONGARCH64)
+
+struct MContext64 {
+  uint64_t gregs[32];
+  uint64_t pc;
+  uint32_t flags;
+  uint32_t fcsr;
+  uint32_t _pad[2];
+  uint64_t fcc;
+  double fpregs[32];
+  uint32_t __reserved;
+};
+
+struct ContextTraits64 : public Traits64 {
+  using MContext = MContext64;
+  using SignalThreadContext = ThreadContext::t64_t;
+  using SignalFloatContext = FloatContext::f64_t;
+  using CPUContext = CPUContextLOONGARCH64;
+};
+
+template <typename Traits>
+struct UContext {
+  typename Traits::ULong flags;
+  typename Traits::Address link;
+  SignalStack<Traits> stack;
+  typename Traits::ULong_32Only alignment_padding_;
+  uint64_t _pad_to_64[3];
+  typename Traits::MContext mcontext;
+  Sigset<Traits> sigmask;
+};
+
+static_assert(offsetof(UContext<ContextTraits64>, mcontext) ==
+                  offsetof(ucontext_t, uc_mcontext),
+              "context offset mismtach");
+//static_assert(offsetof(UContext<ContextTraits64>, mcontext.gregs) ==
+//                  offsetof(ucontext_t, uc_mcontext.__gregs),
+//              "context offset mismatch");
+static_assert(offsetof(UContext<ContextTraits64>, mcontext.fpregs) ==
+                  offsetof(ucontext_t, uc_mcontext.__fpregs),
+              "context offset mismatch");
 
 #else
 #error Port.

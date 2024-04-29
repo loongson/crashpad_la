@@ -174,6 +174,39 @@ void InitializeCPUContextMIPS(
 
 #endif  // ARCH_CPU_MIPS_FAMILY || DOXYGEN
 
+#if defined(ARCH_CPU_LOONGARCH64) || DOXYGEN
+
+//! \brief Initializes a CPUContextLOONGARCH64 structure from native context
+//!     structures on Linux.
+//!
+//! This function has template specializations for LOONGARCH64 architecture
+//! contexts, using ContextTraits32 or ContextTraits64 as template parameter,
+//! respectively.
+//!
+//! \param[in] thread_context The native thread context.
+//! \param[in] float_context The native float context.
+//! \param[out] context The CPUContextLOONGARCH64 structure to initialize.
+void InitializeCPUContextLOONGARCH64(const ThreadContext::t64_t& thread_context,
+				     const FloatContext::f64_t& float_context,
+				     CPUContextLOONGARCH64* context);
+//template <typename Traits>
+//void InitializeCPUContextLOONGARCH64(
+//    const typename Traits::SignalThreadContext& thread_context,
+//    const typename Traits::SignalFloatContext& float_context,
+//    typename Traits::CPUContext* context) {                                                                                                                                    static_assert(sizeof(context->regs) == sizeof(thread_context.regs),
+//                "registers size mismatch");
+//  static_assert(sizeof(context->fpregs) == sizeof(float_context.fpregs),
+//                "fp registers size mismatch");
+//  memcpy(&context->regs, &thread_context.regs, sizeof(context->regs));
+//  context->csr_epc = thread_context.csr_epc;
+//
+//  memcpy(&context->fpregs, &float_context.fpregs, sizeof(context->fpregs));
+//  context->fcsr = float_context.fcsr;
+//  context->fcc = float_context.fcc;
+//}
+
+#endif  // ARCH_CPU_LOONGARCH64 || DOXYGEN
+
 }  // namespace internal
 }  // namespace crashpad
 
