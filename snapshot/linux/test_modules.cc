@@ -112,7 +112,7 @@ bool WriteTestModule(const base::FilePath& module_path,
   module.ehdr.e_machine = EM_MIPS;
 #elif defined(ARCH_CPU_LOONGARCH64)
   module.ehdr.e_machine = EM_LOONGARCH;
-  module.ehdr.e_flags |= EF_LARCH_ABI_LP64D;
+  module.ehdr.e_flags |= EF_LARCH_ABI_DOUBLE_FLOAT;
 #endif
 
   module.ehdr.e_version = EV_CURRENT;
