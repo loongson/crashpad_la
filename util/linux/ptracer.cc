@@ -436,13 +436,8 @@ bool GetThreadArea64(pid_t tid,
                      const ThreadContext& context,
                      LinuxVMAddress* address,
                      bool can_log) {
-  void* result;
-
-  if (ptrace(PTRACE_GET_THREAD_AREA, tid, nullptr, &result) != 0) {
-    PLOG_IF(ERROR, can_log) << "ptrace";
-    return false;
-  }
-  *address = FromPointerCast<LinuxVMAddress>(result);
+  // Thread pointer register
+  *address = context.t64.regs[2];
   return true;
 }
 
