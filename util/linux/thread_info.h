@@ -263,9 +263,10 @@ union FloatContext {
     uint32_t fpcsr;
     uint32_t fpu_id;
 #elif defined(ARCH_CPU_LOONGARCH64)
+    // Reflects user_fp_struct in sys/user.h
     uint64_t fregs[32];
-    uint32_t fcsr;
     uint64_t fcc;
+    uint32_t fcsr;
 #else
 #error Port.
 #endif  // ARCH_CPU_X86_FAMILY
