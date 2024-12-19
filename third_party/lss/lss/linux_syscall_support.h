@@ -3145,7 +3145,7 @@ struct kernel_statfs {
                                 "ld.d $t7, $sp, 64\n"                         \
                                 "ld.d $t8, $sp, 72\n"                         \
                                 "addi.d $sp, $sp, 80\n"                       \
-                                : "+r"(__res_a0)                              \
+                                : "=r"(__res_a0)                              \
                                 : "i"(__NR_##name) , ## args                  \
                                 : LSS_SYSCALL_CLOBBERS);                      \
           __res = __res_a0;                                                   \
